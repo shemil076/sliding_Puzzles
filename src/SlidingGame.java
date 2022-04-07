@@ -68,7 +68,6 @@ public class SlidingGame {
         int visitedRow;
         int visitedCol;
         int stepCount = 0;
-
         ArrayList<String> paths = new ArrayList<String>();
 
 
