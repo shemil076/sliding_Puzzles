@@ -34,12 +34,15 @@ public class SlidingGame {
         System.out.println("------------------------------------------------------");
 
         SlidingGame game = new SlidingGame();
-        game.getFilePath();
-        game.readMap();
-        game.printMap();
-        game.findPath();
+        game.getFilePath();                 // get the file path from the user
+        game.readMap();                     // read the map from the file
+        game.printMap();                    // print the map to the console
+        game.findPath();                    // find the path
     }
 
+    /**
+     * Get the file path from the user
+     */
     public void getFilePath() {
         System.out.println("Enter the file path: ");
         filename = input.next();
@@ -50,23 +53,22 @@ public class SlidingGame {
     /**
      * Read the map from the file and store it in a 2d char array
      */
-    public void readMap() {
-        while (true) {
-
+    public void readMap() { // parser
+        while (true) {  // loops until the user input a valid file.
             File file = new File( filename );
             try {
                 BufferedReader reader = new BufferedReader(new FileReader(file));
-                String line = reader.readLine();
+                String line = reader.readLine();            //first line of the file
                 int n = line.length();
-                map = new char[n][n];                               // initialize the array according to the map in the file
+                map = new char[n][n];                       // initialize the array according to the map in the file
                 for (int i = 0; i < n; i++) {
-                    map[i] = line.toCharArray();                    // store the map line by line in an array
-                    line = reader.readLine();
+                    map[i] = line.toCharArray();            // store the map line by line in an array
+                    line = reader.readLine();               // read the next lines by looping
                 }
                 break;
             } catch (Exception e) {
                 System.out.println("OOPS! Something went wrong!\n");
-                getFilePath();
+                getFilePath();          // get the file path again if the file is not found
                 System.out.println();
             }
         }
@@ -85,16 +87,16 @@ public class SlidingGame {
     }
 
     /**
-     * Find the starting point of the map
+     * Find the starting point of the map and added it to the nodes list and mark it as visited
      */
     public void findStart() {
         for (int i = 0; i < map.length; i++) {
             for (int j = 0; j < map[i].length; j++) {
                 if (map[i][j] == 'S') {
                     Node node = new Node(i, j);
-                    nodes.add(node);
+                    nodes.add(node);                                                // added the starting node to the nodes list
                     gone = new boolean[map.length][map[i].length];
-                    gone[node.getRowIndex()][node.getColIndex()] = true;
+                    gone[node.getRowIndex()][node.getColIndex()] = true;            // mark the start node as visited
                 }
             }
         }
@@ -120,6 +122,8 @@ public class SlidingGame {
                 found = true;
                 break;
             } else {
+
+                // move according to the direction to find the suitable path
                 move(directions[2], -1, 0);
                 move(directions[3], 1, 0);
                 move(directions[1], 0, 1);
@@ -141,13 +145,13 @@ public class SlidingGame {
      * Move the node in the direction specified
      *
      * @param direction - the direction to move
-     * @param x         - the x co-ordinate to move
-     * @param y         - the y co-ordinate to move
+     * @param x         - the x co-ordinate to move (Column)
+     * @param y         - the y co-ordinate to move (row)
      */
     public void move(String direction, int x, int y) {
 
-        int row = visitedNode.getRowIndex();
-        int col = visitedNode.getColIndex();
+        int row = visitedNode.getRowIndex();   // get the row index of the visited node
+        int col = visitedNode.getColIndex();   // get the column index of the visited node
         int rowCount = map.length;
         int colCount = map[0].length;
 
@@ -156,14 +160,14 @@ public class SlidingGame {
             row += y;
             col += x;
 
-            if (row >= 0 && col >= 0) {
-                if (row < rowCount && col < colCount) {
-                    if (map[row][col] != '0') {
-                        if (!gone[row][col]) {
+            if (row >= 0 && col >= 0) {   // check if the node is in the map
+                if (row < rowCount && col < colCount) { // check if the node is in the map
+                    if (map[row][col] != '0') { // check if the node is a rock
+                        if (!gone[row][col]) { // check if the node has been visited
 
-                            if (map[row][col] == 'F') {
+                            if (map[row][col] == 'F') {    // check for the fish node
 
-                                adjacentNode = new Node(row, col);
+                                adjacentNode = new Node(row, col);         // next node to be visited
                                 adjacentNode.setPrevious(visitedNode);
                                 adjacentNode.setDirection(direction);
                                 nodes.add(0, adjacentNode);
@@ -177,7 +181,7 @@ public class SlidingGame {
                                         || (map[ row + y][col + x] == '0'))     // check if the next node is a rock
                                 {
 
-                                    adjacentNode = new Node(row, col);
+                                    adjacentNode = new Node(row, col);  // next node to be visited
                                     adjacentNode.setPrevious(visitedNode);
                                     adjacentNode.setDirection(direction);
                                     nodes.add(adjacentNode);
@@ -204,6 +208,8 @@ public class SlidingGame {
     public void printPath() {
         if (found) {
             System.out.println("\nPath Found\n");
+
+            // until the starting node is reached
             while (visitedNode.getPrevious() != null) {
                 String movement = "Move " + visitedNode.getDirection() + " to " + "(" + (visitedNode.getColIndex() + 1) + ", " + (visitedNode.getRowIndex() + 1) + ")";
                 paths.add(movement);
@@ -212,6 +218,7 @@ public class SlidingGame {
 
             paths.add("Start at " + "(" + (visitedNode.getColIndex() + 1) + ", " + (visitedNode.getRowIndex() + 1) + ")");
 
+            // print the path in reverse order to get the correct order
             for (int i = paths.size() - 1; i >= 0; i--) {
                 stepCount++;
                 System.out.println(stepCount + ". " + paths.get(i));
